@@ -7,7 +7,8 @@ using UnityEngine.UI;
 public enum FPS_TriggerType
 {
     SemiAuto,
-    Automatic
+    Automatic,
+    Charged
 }
 
 public abstract class Weapon : MonoBehaviour, I_Interactable {
@@ -76,8 +77,10 @@ public abstract class Weapon : MonoBehaviour, I_Interactable {
     // # ------------------- METHODOLOGY -------------------- #
     // ########################################################
 
+    
     private void Update()
     {
+
         // Update Shot Timer
         if (nextShot > 0)
         {
@@ -194,7 +197,7 @@ public abstract class Weapon : MonoBehaviour, I_Interactable {
     // #########################################################
 
     /// I_Interactable
-    public void Interact()
+    public virtual void Interact()
     {
         cam = GetComponentInParent<Camera>();
         transform.localPosition = GetHandPosition();
@@ -211,7 +214,7 @@ public abstract class Weapon : MonoBehaviour, I_Interactable {
     }
 
     /// I_Interactable
-    public void Release()
+    public virtual void Release()
     {
         // Rigidbody Settings
         rb.useGravity = true;

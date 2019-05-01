@@ -5,6 +5,12 @@ using UnityEngine;
 public class Sniper_v1 : Weapon {
 
     // ########################################################
+    // # ----------------- WEAPON COMPONENTS ---------------- #
+    // ########################################################
+
+    [SerializeField] Camera scope;
+
+    // ########################################################
     // # ----------------- WEAPON VARIABLES ----------------- #
     // ########################################################
 
@@ -22,10 +28,7 @@ public class Sniper_v1 : Weapon {
 
     private Vector3 handPosition = new Vector3(0.491f, -0.502f, 0.595f);
     private Vector3 aimedPosition = new Vector3(0.085f, -0.308f, 0.974f);
-
-    [SerializeField] Camera scope;
-
-
+    
     // #########################################################
     // # ---------------- OVERRIDABLE METHODS ---------------- #
     // #########################################################
@@ -58,8 +61,8 @@ public class Sniper_v1 : Weapon {
                 impact.transform.parent = targetHit.transform;
 
                 // If the target is an entity, damage its health script
-                //if (targetHit.GetComponent<Entity>() != null)
-                //targetHit.GetComponent<Entity>().DamageEntity(damage);
+                if (targetHit.GetComponentInParent<FPS_Entity>() != null)
+                    targetHit.GetComponentInParent<FPS_Entity>().DamageEntity(damage, targetHit);
             }
 
             else

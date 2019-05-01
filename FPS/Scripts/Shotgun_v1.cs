@@ -64,6 +64,10 @@ public class Shotgun_v1 : Weapon {
                     GameObject impact = Instantiate(bullethole, hit.point + hit.normal * 0.001f, Quaternion.LookRotation(hit.normal));
                     impact.transform.parent = targetHit.transform;
 
+                    // If the target is an entity, damage its health script
+                    if (targetHit.GetComponentInParent<FPS_Entity>() != null)
+                        targetHit.GetComponentInParent<FPS_Entity>().DamageEntity(damage, targetHit);
+
                 }
 
                 else
@@ -106,13 +110,25 @@ public class Shotgun_v1 : Weapon {
         {
             currentDeviationX = shotDeviationX / 1.5f;
             currentDeviationY = shotDeviationY / 1.5f;
+
+            cam.fieldOfView = 55.0f;
         }
 
         else if (!isAiming)
         {
             currentDeviationX = shotDeviationX;
             currentDeviationY = shotDeviationY;
+
+            cam.fieldOfView = 60.0f;
         }
+    }
+
+    public override void Release()
+    {
+        base.Release();
+
+        cam.fieldOfView = 60.0f;
+        isAiming = false;
     }
 
     // #########################################################

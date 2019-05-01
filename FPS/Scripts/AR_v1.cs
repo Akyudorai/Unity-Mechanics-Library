@@ -58,8 +58,8 @@ public class AR_v1 : Weapon {
                 impact.transform.parent = targetHit.transform;
 
                 // If the target is an entity, damage its health script
-                //if (targetHit.GetComponent<Entity>() != null)
-                //targetHit.GetComponent<Entity>().DamageEntity(damage);
+                if (targetHit.GetComponentInParent<FPS_Entity>() != null)
+                    targetHit.GetComponentInParent<FPS_Entity>().DamageEntity(damage, targetHit);
             }
 
             else
@@ -101,17 +101,29 @@ public class AR_v1 : Weapon {
         {
             currentDeviationX = GetAimedSpread();
             currentDeviationY = GetAimedSpread();
+
+            cam.fieldOfView = 45.0f;
         }
 
         else if (!isAiming)
         {
             currentDeviationX = shotDeviationX;
             currentDeviationY = shotDeviationY;
+
+            cam.fieldOfView = 60.0f;
         }
 
     }
-    
-    
+
+    public override void Release()
+    {
+        base.Release();
+
+        cam.fieldOfView = 60.0f;
+        isAiming = false;
+    }
+
+
     // #########################################################
     // # ----------------- GETTERS | SETTERS ----------------- #
     // #########################################################

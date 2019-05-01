@@ -106,8 +106,16 @@ public class FPS_PlayerController : MonoBehaviour {
                                 equipped.PrimaryFunction();
                             }
                         }
+                        
+                        break;
+
+                    case FPS_TriggerType.Charged:
+
+                        equipped.PrimaryFunction();
 
                         break;
+
+                        default: break;
                 }
 
                 if (Input.GetKeyDown(KeyCode.Mouse1))
