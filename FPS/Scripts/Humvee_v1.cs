@@ -32,7 +32,7 @@ public class Humvee_v1 : FPS_Entity {
             //o.transform.parent = null;
             o.GetComponent<Rigidbody>().isKinematic = false;
             
-            o.GetComponent<Rigidbody>().AddExplosionForce(5, transform.localPosition - transform.up * 5 + transform.forward, 5.0f);
+            o.GetComponent<Rigidbody>().AddExplosionForce(5, transform.localPosition - transform.up * 5 + transform.forward, 5.0f, 2.0f, ForceMode.Impulse);
             o.GetComponent<MeshCollider>().convex = true;
 
             o.transform.parent = null;
