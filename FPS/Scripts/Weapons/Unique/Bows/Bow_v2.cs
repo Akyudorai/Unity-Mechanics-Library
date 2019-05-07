@@ -11,7 +11,9 @@ public class Bow_v2 : Weapon {
     
     
     [SerializeField] LineRenderer bowstring;
-    [SerializeField] GameObject stringStart, stringBend, stringEnd;
+    [SerializeField] GameObject stringStart;
+    [SerializeField] GameObject stringBend;
+    [SerializeField] GameObject stringEnd;
     
     [SerializeField] GameObject[] arrowType;
     [SerializeField] Text arrowTypeTxt;

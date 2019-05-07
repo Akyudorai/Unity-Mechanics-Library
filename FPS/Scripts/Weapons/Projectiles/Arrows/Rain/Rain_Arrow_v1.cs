@@ -6,7 +6,7 @@ public class Rain_Arrow_v1 : Projectile {
 
     [SerializeField] GameObject classicArrow;
 
-    private Vector3 startPos;
+    //private Vector3 startPos;
     private float timer = 2.0f;
     //private bool collision = false;
 
@@ -82,7 +82,7 @@ public class Rain_Arrow_v1 : Projectile {
         rigid.AddForce(direction * (projectileSpeed * power), ForceMode.Impulse);
         rigid.constraints = RigidbodyConstraints.None;
 
-        startPos = transform.position;
+        //startPos = transform.position;
         isActive = true;
     }
 

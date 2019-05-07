@@ -31,7 +31,7 @@ public class Swarm_Arrow_v1 : Projectile {
                         position.z += (i % 3) + j;
 
 
-                        GameObject seeker = Instantiate(seekerMissileObj, position, Quaternion.LookRotation(lookDir));                        
+                        Instantiate(seekerMissileObj, position, Quaternion.LookRotation(lookDir));                        
                     }
                 }
 

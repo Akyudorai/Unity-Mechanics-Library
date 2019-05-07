@@ -15,8 +15,8 @@ public class Gravitation_v1 : MonoBehaviour {
         foreach (Collider c in objectsInRange)
         {
             // Linear Falloff
-            float proximity = (transform.position - c.transform.position).magnitude;
-            float effect = (proximity / blastRadius);
+            //float proximity = (transform.position - c.transform.position).magnitude;
+            //float effect = (proximity / blastRadius);
 
             // If it has a rigidbody, apply a blast force to it
             if (c.GetComponent<Rigidbody>() != null)

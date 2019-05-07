@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Gravitation_Arrow_v1 : Projectile {
 
-    [SerializeField] private float pullForce = 5.0f;
-    [SerializeField] private float blastRadius = 7.0f;
+    //[SerializeField] private float pullForce = 5.0f;
+    //[SerializeField] private float blastRadius = 7.0f;
 
     [SerializeField] private GameObject blastPrefab;
 

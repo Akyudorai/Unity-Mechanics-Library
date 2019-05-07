@@ -9,8 +9,7 @@ public class FPS_Player : MonoBehaviour {
 	public FPS_Controller activeController;
 
     [SerializeField] private FPSC_FreeCam defaultController;
-
-
+    
     private void Start()
     {
         if (activeController != null)
