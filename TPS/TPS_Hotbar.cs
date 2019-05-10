@@ -41,8 +41,10 @@ public class TPS_Hotbar : MonoBehaviour {
             else
             {
                 icons[i].sprite = abilities[i].GetIcon();
+
             }
         }
+
     }
 
     // Hotkey System
@@ -54,18 +56,10 @@ public class TPS_Hotbar : MonoBehaviour {
             
             if (abilities[0] != null)
             {
-                if (controller.GetDelay() <= 0)
+                if (controller.GetDelay() <= 0 && abilities[0].GetCooldown() <= 0)
                 {
-                    if (controller.GetCurrentTarget() != null)
-                    {
-                        RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(controller, controller.GetCurrentTarget());
-                        abilities[0].Activate(settings);                        
-                    }
-
-                    else
-                    {
-                        Debug.Log("No Target Selected");
-                    }
+                    RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(controller, controller.GetCurrentTarget());
+                    abilities[0].Activate(settings);
                 }
 
                 else
@@ -86,19 +80,10 @@ public class TPS_Hotbar : MonoBehaviour {
 
             if (abilities[1] != null)
             {
-                if (controller.GetDelay() <= 0)
+                if (controller.GetDelay() <= 0 && abilities[1].GetCooldown() <= 0)
                 {
-                    if (controller.GetCurrentTarget() != null)
-                    {
-                        RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(controller, controller.GetCurrentTarget());
-                        abilities[1].Activate(settings);
-                        controller.DelayGCD();
-                    }
-
-                    else
-                    {
-                        Debug.Log("No Target Selected");
-                    }
+                    RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(controller, controller.GetCurrentTarget());
+                    abilities[1].Activate(settings);                    
                 }
 
                 else
@@ -113,7 +98,24 @@ public class TPS_Hotbar : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            Debug.Log("'3' Pressed");
+            //Debug.Log("'3' Pressed");
+
+            if (abilities[2] != null)
+            {
+                if (controller.GetDelay() <= 0 && abilities[2].GetCooldown() <= 0)
+                {
+                    RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(controller, controller.GetCurrentTarget());
+                    abilities[2].Activate(settings);                    
+                }
+
+                else
+                {
+                    Debug.Log("Ability is on cooldown!");
+                }
+
+            }
+
+            else Debug.Log("No Ability in slot 2");
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha4))

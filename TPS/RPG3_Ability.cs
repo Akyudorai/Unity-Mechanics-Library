@@ -21,6 +21,7 @@ public class RPG3_AbilitySettings
     // Owner of the Ability
     public TPS_Controller owner;
     
+    
     // #########################################################
     // # ----------------- TARGETED SYSTEM ------------------- #
     // #########################################################
@@ -33,7 +34,9 @@ public class RPG3_AbilitySettings
         RPG3_AbilitySettings result = new RPG3_AbilitySettings();
         result.owner = owner;
         result.target = target;
-        result.targetEntity = target.GetComponent<TPS_Entity>();
+
+        if (target != null)
+            result.targetEntity = target.GetComponent<TPS_Entity>();
         
         return result;
     }
@@ -66,12 +69,21 @@ public class RPG3_AbilitySettings
 
 
 public abstract class RPG3_Ability : ScriptableObject {
-
+    
     public abstract string GetName();
     public abstract RPG3_AbilityType GetAbilityType();
     public abstract Sprite GetIcon();
 
+    protected float cdTimer;
+
+    public void Cooldown() {
+        cdTimer -= Time.deltaTime;
+    }
+
+    public abstract float GetFullCooldown();
+    public abstract float GetCooldown();
 
     public abstract void Activate(RPG3_AbilitySettings settings);
+    public abstract void Effect(RPG3_AbilitySettings settings);
 
 }

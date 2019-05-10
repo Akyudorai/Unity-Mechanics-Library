@@ -9,8 +9,8 @@ public class TPS_Entity : MonoBehaviour {
     [SerializeField] protected int health;
     [SerializeField] [Range(0.0f, 1.0f)] protected float setHealth = 1.0f;
 
-    [SerializeField] protected int maxResource = 100;
-    [SerializeField] protected int resource;
+    [SerializeField] public int maxResource = 100;
+    [SerializeField] public int resource;
     [SerializeField] [Range(0.0f, 1.0f)] protected float setResource = 1.0f;
 
     [SerializeField] bool isKillable = false;
@@ -26,7 +26,7 @@ public class TPS_Entity : MonoBehaviour {
     private void Start()
     {
         health = Mathf.RoundToInt(maxHealth * setHealth);
-        resource = Mathf.RoundToInt(maxResource * setResource);
+        //resource = Mathf.RoundToInt(maxResource * setResource);
     }
 
     public virtual void Destruct()
@@ -56,4 +56,14 @@ public class TPS_Entity : MonoBehaviour {
             health = 1;
         }
     }    
+
+    public void SubtractResource(int amount)
+    {
+        resource -= amount;
+    }
+
+    public void AddResource(int amount)
+    {
+        resource += amount;
+    }
 }
