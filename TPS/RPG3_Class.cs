@@ -26,9 +26,25 @@ public class RPG3_Class : ScriptableObject {
     public List<RPG3_Ability> abilities = new List<RPG3_Ability>();
     
     public RPG3_ResourceType resourceType;
-    protected int resourcePerSecond;
+    protected float resourcePerSecond;
     
     public int comboLevel;
+
+    public string className;
+    public int stamina;
+    public int strength;
+    public int agility;
+    public int intellect;
+    public int wisdom;
+
+    public int baseHealth;
+    public int baseResource;
+
+    public int attackPower;
+    public float physicalCritChance;
+
+    public int spellPower;
+    public float magicalCritChance;
 
     private float resourceTick;
 
@@ -58,7 +74,7 @@ public class RPG3_Class : ScriptableObject {
 
             if (entity.resource + resourcePerSecond <= entity.maxResource && entity.resource + resourcePerSecond >= 0)
             {
-                entity.AddResource(resourcePerSecond);
+                entity.AddResource(Mathf.FloorToInt(resourcePerSecond));
             }
 
             else if (entity.resource + resourcePerSecond > entity.maxResource)

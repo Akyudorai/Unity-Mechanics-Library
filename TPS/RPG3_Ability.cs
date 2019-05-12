@@ -2,24 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using UnityEngine.UI;
+
 public enum RPG3_AbilityType
 {
     Active,
     Passive
 }
 
-//public enum RPG3_AbilityMode
-//{
-//    Targeted,
-//    Positional,
-//    Self
-//}
+public enum RPG3_AbilityMode
+{
+    Targeted,
+    Positional,
+    Self
+}
 
 
 public class RPG3_AbilitySettings
 {
     // Owner of the Ability
     public TPS_Controller owner;
+
+    public GameObject indicator;
     
     
     // #########################################################
@@ -72,9 +76,12 @@ public abstract class RPG3_Ability : ScriptableObject {
     
     public abstract string GetName();
     public abstract RPG3_AbilityType GetAbilityType();
+    public abstract RPG3_AbilityMode GetAbilityMode();
     public abstract Sprite GetIcon();
-
+    
     protected float cdTimer;
+    
+    public bool isTargeting;
 
     public void Cooldown() {
         cdTimer -= Time.deltaTime;

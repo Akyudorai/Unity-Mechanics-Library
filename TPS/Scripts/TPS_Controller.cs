@@ -20,8 +20,8 @@ public class TPS_Controller : MonoBehaviour {
 
 
     // Global Cooldown on Actions
-    protected const float GCD = 0.5f;
-    protected float delay;
+    public float GCD = 0.5f;
+    public float delay;
     public float GetDelay() { return delay; }
     public void DelayGCD() { delay = GCD; }
 
@@ -105,43 +105,40 @@ public class TPS_Controller : MonoBehaviour {
 
     }
 
-    //public IEnumerator MoveTo(Vector3 targetPosition)
-    //{
-    //    yield return Time.deltaTime;
+    public IEnumerator MoveTo(Vector3 targetPosition, float speed)
+    {
+        yield return Time.deltaTime;
 
-    //    float distance = Vector3.Distance(transform.position, targetPosition);
-    //    float speed = 0.1f;
+        float distance = Vector3.Distance(transform.position, targetPosition);
+        
+        float timeScale = speed / distance;
 
-    //    float timeScale = speed / distance;
+        transform.position = Vector3.Lerp(transform.position, targetPosition, timeScale);
 
-    //    transform.position = Vector3.Lerp(transform.position, targetPosition, timeScale);
+        if (distance > 1.0f)
+        {
+            StartCoroutine(MoveTo(targetPosition, speed));
+        }
 
-    //    if (distance > 5.0f)
-    //    {
-    //        StartCoroutine(MoveTo(targetPosition));
-    //    }
+        else
+        {
+            disableControls = false;
+        }
 
-    //    else
-    //    {
-    //        disableControls = false;
-    //    }
+    }
 
-    //}
-
-    public IEnumerator MoveToEntity(TPS_Entity targetEntity)
+    public IEnumerator MoveToEntity(TPS_Entity targetEntity, float speed)
     {
         yield return Time.deltaTime;
 
         float distance = Vector3.Distance(transform.position, targetEntity.transform.position);
-        float speed = 0.1f;
-
         float timeScale = speed / distance;
 
         transform.position = Vector3.Lerp(transform.position, targetEntity.transform.position, timeScale);
 
         if (distance > 5.0f)
         {
-            StartCoroutine(MoveToEntity(targetEntity));
+            StartCoroutine(MoveToEntity(targetEntity, speed));
         }
 
         else

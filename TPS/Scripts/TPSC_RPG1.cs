@@ -13,7 +13,7 @@ public class TPSC_RPG1 : TPS_Controller {
     
     [Header("Controller Components")]
     [SerializeField] UIRaycaster uiRaycaster;
-
+    
     CharacterController controller;
 
     TPS_Entity entity;
@@ -31,7 +31,7 @@ public class TPSC_RPG1 : TPS_Controller {
     private bool isFalling;
     //private bool m_Jump;
     private Vector2 ForceVector;
-    
+    public float speedMultiplier = 1.0f;
     
     [Header("Class System")]
     [SerializeField] RPG3_ClassList selectClass;
@@ -43,12 +43,17 @@ public class TPSC_RPG1 : TPS_Controller {
     public bool isChanneling;
     [SerializeField] Image channelingBar;
     [SerializeField] Text channelingText;
+    public TPS_Controller channelTarget;
 
     [Header("Targeting System")]
     [SerializeField] TPS_Controller targetController;
     [SerializeField] TPS_Entity targetEntity;
     public TPS_Controller GetCurrentTarget() { return targetController; }
     public TPS_Entity GetCurrentTargetEntity() { return targetEntity; }
+    
+    public GameObject activeTargetIndicator;    
+    public RPG3_Ability abilityBeingTargeted;
+    private Vector3 abilityTargetPoint;
 
     // Targeting System GUI
     [SerializeField] GameObject targetInfoDisplay;
@@ -69,6 +74,8 @@ public class TPSC_RPG1 : TPS_Controller {
     // Ability Management Window
     [SerializeField] GameObject abilityManager;
     
+    // Character Info Window
+    [SerializeField] GameObject characterInfo;
 
     
    
@@ -84,7 +91,7 @@ public class TPSC_RPG1 : TPS_Controller {
         entity = GetComponent<TPS_Entity>();
         controller = GetComponent<CharacterController>();
         hotbar = GetComponent<TPS_Hotbar>();
-        
+
         // Values
         isFalling = true;
 
@@ -105,54 +112,53 @@ public class TPSC_RPG1 : TPS_Controller {
         {
             default:
             case RPG3_ClassList.Warrior:
-                currentClass = ScriptableObject.CreateInstance<RPG3_Warrior>();
-
-                hotbar.abilities[0] = currentClass.GetAbility("Rend");
-                hotbar.abilities[1] = currentClass.GetAbility("Charge");
+                currentClass = ScriptableObject.CreateInstance<RPG3_Warrior>();                
                 break;
             
             case RPG3_ClassList.Rogue:
-                currentClass = ScriptableObject.CreateInstance<RPG3_Rogue>();
-
-                hotbar.abilities[0] = currentClass.GetAbility("Shiv");
-                hotbar.abilities[1] = currentClass.GetAbility("Eviscerate");
+                currentClass = ScriptableObject.CreateInstance<RPG3_Rogue>();                
                 break;
 
             case RPG3_ClassList.Mage:
                 currentClass = ScriptableObject.CreateInstance<RPG3_Mage>();
-
-                hotbar.abilities[0] = currentClass.GetAbility("Fireball");
-                hotbar.abilities[1] = currentClass.GetAbility("Fireblast");
-                hotbar.abilities[2] = currentClass.GetAbility("Evocation");
                 break;
             
+        }
+
+        for (int i = 0; i < currentClass.abilities.Count; i++)
+        {
+            abilityManager.GetComponent<RPG3_AbilityPanel>().Initialize(this, currentClass.abilities[i]);
         }
 
         switch (currentClass.resourceType)
         {
             case RPG3_ResourceType.Rage:
                 resourceBar.color = Color.red;
-                entity.resource = 0;
-                entity.maxResource = 100;
+                entity.maxHealth = currentClass.baseHealth + (currentClass.stamina * 8);
+                entity.maxResource = currentClass.baseResource;
+                entity.resource = 0;                
                 break;
 
             case RPG3_ResourceType.Mana:
                 resourceBar.color = Color.blue;
-                entity.resource = 250;
-                entity.maxResource = 250;
+                entity.maxHealth = currentClass.baseHealth + (currentClass.stamina * 8);                
+                entity.maxResource = currentClass.baseResource + (currentClass.intellect * 8);
+                entity.resource = entity.maxResource;
                 break;
 
             case RPG3_ResourceType.Energy:
                 resourceBar.color = Color.yellow;
-                entity.resource = 100;
-                entity.maxResource = 100;
+                entity.maxHealth = currentClass.baseHealth + (currentClass.stamina * 8);                
+                entity.maxResource = currentClass.baseResource;
+                entity.resource = entity.maxResource;
                 break;
 
             default: break;
         }
 
         currentClass.entity = entity;
-        hotbar.UpdateIcons();
+        characterInfo.GetComponent<RPG3_CharacterInfoManager>().controller = this;        
+        //hotbar.UpdateIcons();
     }
 
     private void Start()
@@ -183,6 +189,24 @@ public class TPSC_RPG1 : TPS_Controller {
                     Motion();
                 }
                 
+                
+                // TARGETING SYSTEM
+                if (activeTargetIndicator != null)
+                {
+                    Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+
+                    RaycastHit hitInfo;
+                    if (Physics.Raycast(ray, out hitInfo))
+                    {
+                        // Get Collision Data
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+                        
+                        activeTargetIndicator.transform.position = hitInfo.point + hitInfo.normal * 0.1f;
+                    }
+                    
+                }
+                
+                // CHANNELLING
                 if (channelledAbility != null)
                 {                               
                     channelingBar.enabled = true;
@@ -194,15 +218,31 @@ public class TPSC_RPG1 : TPS_Controller {
                         isChanneling = true;
                         
                         channelingText.text = channelledAbility.GetName() + " : " + Mathf.Round(channelTimer * 100) / 100;
-                        channelingBar.fillAmount = (channelTimer / 2.0f);
+                        channelingBar.fillAmount = (channelTimer / 2.5f);
                     }
 
                     if (channelTimer <= 0)
                     {
-                        RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(this, targetController);                        
+                        RPG3_AbilitySettings settings = new RPG3_AbilitySettings();
+                        switch (channelledAbility.GetAbilityMode())
+                        {
+                            case RPG3_AbilityMode.Targeted:
+                                settings = RPG3_AbilitySettings.Initialize(this, channelTarget);
+                                break;
+
+                            case RPG3_AbilityMode.Positional:
+                                settings = RPG3_AbilitySettings.Initialize(this, abilityTargetPoint);
+                                break;
+
+                             case RPG3_AbilityMode.Self:
+                                settings = RPG3_AbilitySettings.Initialize(this, channelTarget);
+                                break;
+                        }
+                                               
                         channelledAbility.Effect(settings);
                         
                         channelledAbility = null;
+                        channelTarget = null;
                         channelingBar.enabled = false;
                         channelingText.enabled = false;
                     }
@@ -211,19 +251,23 @@ public class TPSC_RPG1 : TPS_Controller {
                 hotbar.HotkeyTracker();
                 
                 if (Input.GetKeyDown(KeyCode.Mouse0))
-                {
+                {                    
                     // If a UI element was pressed, break out.
                     if (uiRaycaster.Raycast().Count > 0)
                     {
                         return;
                     }
 
-                    // Clear the active target if worldspace was clicked
-                    if (targetController != null || targetEntity != null)
+                    if (abilityBeingTargeted == null)
                     {
-                        targetController = null;
-                        targetEntity = null;
+                        // Clear the active target if worldspace was clicked
+                        if (targetController != null || targetEntity != null)
+                        {
+                            targetController = null;
+                            targetEntity = null;
+                        }
                     }
+                    
 
                     // if the UI was not pressed, raycast to world position
                     Ray ray = cam.ScreenPointToRay(Input.mousePosition);
@@ -236,6 +280,24 @@ public class TPSC_RPG1 : TPS_Controller {
 
                         GameObject targetHit = hitInfo.collider.gameObject;
                         Debug.Log(targetHit);
+
+                        // Activate an ability that's being targeted
+                        if (abilityBeingTargeted != null)
+                        {
+                            if (activeTargetIndicator != null)
+                            {
+                                Destroy(activeTargetIndicator);
+                                activeTargetIndicator = null;
+                            }
+
+                            RPG3_AbilitySettings settings = RPG3_AbilitySettings.Initialize(this, hitInfo.point);                            
+                            abilityBeingTargeted.Activate(settings);
+
+                            abilityTargetPoint = hitInfo.point;
+                            abilityBeingTargeted.isTargeting = false;
+                            abilityBeingTargeted = null;
+                        }
+
 
                         // Selection Command
                         if (targetHit.GetComponentInParent<TPS_Controller>() != null)
@@ -254,6 +316,25 @@ public class TPSC_RPG1 : TPS_Controller {
                     }
                 }
 
+                if (Input.GetKeyDown(KeyCode.Mouse1))
+                {
+                    // Activate an ability that's being targeted
+                    if (abilityBeingTargeted != null)
+                    {
+                        if (!isChanneling)
+                        {
+                            if (activeTargetIndicator != null)
+                            {
+                                Destroy(activeTargetIndicator);
+                                activeTargetIndicator = null;
+                            }
+
+                            abilityTargetPoint = Vector3.zero;
+                            abilityBeingTargeted.isTargeting = false;
+                            abilityBeingTargeted = null;
+                        }                        
+                    }
+                }
 
                 // Update Canvas
                 if (guiCanvas.enabled)
@@ -298,24 +379,7 @@ public class TPSC_RPG1 : TPS_Controller {
                         if (targetInfoDisplay.activeInHierarchy)
                             targetInfoDisplay.SetActive(false);
                     }
-                }
-
-                // Update Hotbar
-                for (int i = 0; i < hotbar.abilities.Length; i++)
-                {
-                    if (hotbar.abilities[i] != null)
-                    {
-                        if (hotbar.abilities[i].GetCooldown() > 0)
-                        {
-                            hotbar.icons[i].fillAmount = (1 - hotbar.abilities[i].GetCooldown() / hotbar.abilities[i].GetFullCooldown());
-                        }
-
-                        else if (delay > 0)
-                        {
-                            hotbar.icons[i].fillAmount = (1 - delay / GCD);
-                        }
-                    }                    
-                }          
+                }       
             }           
         }
     }
@@ -346,6 +410,7 @@ public class TPSC_RPG1 : TPS_Controller {
                 isChanneling = false;
                 channelledAbility = null;
 
+                channelTarget = null;
                 channelingText.enabled = false;
                 channelingBar.enabled = false;
             }
@@ -354,8 +419,8 @@ public class TPSC_RPG1 : TPS_Controller {
 
 
         // X/Y Motion
-        m_xForce = Input.GetAxis("Horizontal") * m_Speed;
-        m_yForce = Input.GetAxis("Vertical") * m_Speed;
+        m_xForce = Input.GetAxis("Horizontal") * m_Speed * speedMultiplier;
+        m_yForce = Input.GetAxis("Vertical") * m_Speed * speedMultiplier;
 
         // Z Motion
         //if (Input.GetKeyDown(KeyCode.Space) && m_Jump)
@@ -433,5 +498,29 @@ public class TPSC_RPG1 : TPS_Controller {
         base.Eject();
 
         guiCanvas.enabled = false;        
-    }    
+    }  
+    
+    //////////////////////////////////////////
+    ///
+
+    public void EnableAbilityPanel()
+    {
+        abilityManager.SetActive(!abilityManager.activeInHierarchy);
+    }
+
+    public void EnableCharacterInfoPannel()
+    {
+        characterInfo.SetActive(!characterInfo.activeInHierarchy);
+    }
+
+    public IEnumerator SpeedBuff(float multplier, float duration)
+    {
+        Debug.Log("SpeedBuff");
+
+        speedMultiplier = 1.2f;
+
+        yield return new WaitForSeconds(duration);
+
+        speedMultiplier = 1.0f;
+    }
 }

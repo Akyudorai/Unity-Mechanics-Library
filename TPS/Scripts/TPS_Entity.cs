@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class TPS_Entity : MonoBehaviour {
 
+    [Header("Name")]
+    public string entityName;
+
     [Header("Entity Health")]
-    [SerializeField] protected int maxHealth = 100;
-    [SerializeField] protected int health;
+    [SerializeField] public int maxHealth = 100;
+    [SerializeField] public int health;
     [SerializeField] [Range(0.0f, 1.0f)] protected float setHealth = 1.0f;
 
     [SerializeField] public int maxResource = 100;
@@ -23,10 +26,35 @@ public class TPS_Entity : MonoBehaviour {
 
     [SerializeField] List<GameObject> criticalPoints = new List<GameObject>();
 
+    private float tick;
+
     private void Start()
     {
         health = Mathf.RoundToInt(maxHealth * setHealth);
         //resource = Mathf.RoundToInt(maxResource * setResource);
+
+        tick = 0;
+    }
+
+    private void Update()
+    {
+        if (!isKillable)
+        {
+            if (health < maxHealth)
+            {
+                // Regenerate Health
+                if (tick >= 5.0f)
+                {
+                    tick = 0;
+                    health = maxHealth;
+                }
+
+                else
+                {
+                    tick += Time.deltaTime;
+                }
+            }    
+        }
     }
 
     public virtual void Destruct()
